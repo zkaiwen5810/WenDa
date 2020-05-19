@@ -1,5 +1,8 @@
 package com.example.controller;
 
+import com.example.async.EventModel;
+import com.example.async.EventProducer;
+import com.example.async.EventType;
 import com.example.model.ViewObject;
 import com.example.service.UserService;
 import org.apache.commons.lang.StringUtils;
@@ -26,6 +29,9 @@ public class LoginController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    EventProducer eventProducer;
 
     @RequestMapping(path = {"/reg/"}, method = RequestMethod.POST)
     public String reg(Model model,
@@ -70,6 +76,10 @@ public class LoginController {
                 Cookie cookie = new Cookie("ticket", map.get("ticket"));
                 cookie.setPath("/");
                 response.addCookie(cookie);
+
+                /*eventProducer.fireEvent(new EventModel().setType(EventType.LOGIN)
+                        .setExt("username", username).setExt("email", "dsensor33@gmail.com"));*/
+
                 if (StringUtils.isNotBlank(next)){
                     return "redirect:" + next;
                 }
@@ -80,7 +90,7 @@ public class LoginController {
                 return "login";
             }
         }catch(Exception e){
-            logger.error("注册异常" + e.getMessage());
+            logger.error("登录异常" + e.getMessage());
             return "login";
         }
 
