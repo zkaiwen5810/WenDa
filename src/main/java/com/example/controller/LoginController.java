@@ -45,7 +45,7 @@ public class LoginController {
                 Cookie cookie = new Cookie("ticket", map.get("ticket"));
                 cookie.setPath("/");
                 response.addCookie(cookie);
-                if (StringUtils.isBlank(next)){
+                if (StringUtils.isNotBlank(next)){
                     return "redirect:" + next;
                 }
                 return "redirect:/";

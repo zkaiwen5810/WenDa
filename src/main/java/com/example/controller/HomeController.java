@@ -1,8 +1,9 @@
 package com.example.controller;
 
 import com.example.aspect.LogAspect;
-import com.example.model.Question;
-import com.example.model.ViewObject;
+import com.example.model.*;
+import com.example.service.CommentService;
+import com.example.service.FollowService;
 import com.example.service.QuestionService;
 import com.example.service.UserService;
 import org.slf4j.Logger;
@@ -30,9 +31,19 @@ public class HomeController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    FollowService followService;
+
+    @Autowired
+    HostHolder hostHolder;
+
+    @Autowired
+    CommentService commentService;
+
     @RequestMapping(path = {"/", "index"}, method = RequestMethod.GET)
     public String index(Model model){
         List<ViewObject> vos = getQuestions(0, 0, 10);
+
         model.addAttribute("vos", vos);
         return "index";
     }
@@ -41,7 +52,20 @@ public class HomeController {
     public String userIndex(Model model, @PathVariable(value = "userId") int userId){
         List<ViewObject> vos = getQuestions(userId, 0, 10);
         model.addAttribute("vos", vos);
-        return "index";
+
+        User user = userService.getUser(userId);
+        ViewObject vo = new ViewObject();
+        vo.set("user", user);
+        vo.set("commentCount", commentService.getUserCommentCount(userId));
+        vo.set("followerCount", followService.getFollowersCount(EntityType.ENTITY_USER, userId));
+        vo.set("followeeCount", followService.getFolloweesCount(userId, EntityType.ENTITY_USER));
+        if (hostHolder.get() != null) {
+            vo.set("followed", followService.isFollower(hostHolder.get().getId(), EntityType.ENTITY_USER, userId));
+        } else {
+            vo.set("followed", false);
+        }
+        model.addAttribute("profileUser", vo);
+        return "profile";
     }
 
     private List<ViewObject> getQuestions(int userId, int offset, int limit){
@@ -51,6 +75,7 @@ public class HomeController {
             ViewObject vo = new ViewObject();
             vo.set("question", question);
             vo.set("user", userService.getUser(question.getUserId()));
+            vo.set("followCount", followService.getFollowersCount(EntityType.ENTITY_USER, question.getUserId()));
             vos.add(vo);
         }
         return vos;

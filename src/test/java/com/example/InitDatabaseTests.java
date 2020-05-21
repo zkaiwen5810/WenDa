@@ -2,8 +2,10 @@ package com.example;
 
 import com.example.dao.QuestionDao;
 import com.example.dao.UserDao;
+import com.example.model.EntityType;
 import com.example.model.Question;
 import com.example.model.User;
+import com.example.service.FollowService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +26,8 @@ public class InitDatabaseTests {
     @Autowired
     QuestionDao questionDao;
 
+    @Autowired
+    FollowService followService;
 
     @Test
     public void initDatabase(){
@@ -36,7 +40,12 @@ public class InitDatabaseTests {
             user.setSalt("");
             userDao.addUser(user);
 
-            user.setPassword("xx");
+            //互相关注
+            for (int j = 1; j < i; j++){
+                followService.follow(j, EntityType.ENTITY_USER, i);
+            }
+
+            user.setPassword("xxyyzz");
             userDao.updatePassword(user);
 
 
@@ -52,9 +61,9 @@ public class InitDatabaseTests {
             questionDao.addQuestion(question);
         }
 
-        Assert.assertEquals("xx", userDao.selectById(1).getPassword());
-        userDao.deleteById(1);
-        Assert.assertNull(userDao.selectById(1));
+        Assert.assertEquals("xxyyzz", userDao.selectById(1).getPassword());
+        /*userDao.deleteById(1);
+        Assert.assertNull(userDao.selectById(1));*/
 
         System.out.println(questionDao.selectLatestQuestions(0, 0, 10));
     }
