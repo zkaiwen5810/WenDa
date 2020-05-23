@@ -94,7 +94,7 @@ public class FollowController {
         info.put("name", hostHolder.get().getName());
         info.put("id", hostHolder.get().getId());
         info.put("count", followService.getFolloweesCount(hostHolder.get().getId(), EntityType.ENTITY_QUESTION));
-        return WendaUtil.getJSONString(ret ? 0 : 1, info.toString());
+        return WendaUtil.getJSONString(ret ? 0 : 1, info);
     }
 
     @RequestMapping(path = {"/unfollowQuestion"}, method = { RequestMethod.POST })
@@ -118,7 +118,7 @@ public class FollowController {
         info.put("name", hostHolder.get().getName());
         info.put("id", hostHolder.get().getId());
         info.put("count", followService.getFolloweesCount(hostHolder.get().getId(), EntityType.ENTITY_QUESTION));
-        return WendaUtil.getJSONString(ret ? 0 : 1, info.toString());
+        return WendaUtil.getJSONString(ret ? 0 : 1, info);
 
     }
 
