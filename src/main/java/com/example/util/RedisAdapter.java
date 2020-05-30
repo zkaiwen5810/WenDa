@@ -74,6 +74,15 @@ public class RedisAdapter implements InitializingBean {
         return 0;
     }
 
+    public List<String> lrange(String key, long start, long end){
+        try(Jedis jedis = pool.getResource();) {
+            return jedis.lrange(key, start, end);
+        }catch (Exception e){
+            logger.error("发生异常：" + e.getMessage());
+        }
+        return null;
+    }
+
     public List<String> brpop(int timeout, String key){
         try(Jedis jedis = pool.getResource();) {
             return jedis.brpop(timeout, key);

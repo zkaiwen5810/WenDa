@@ -1,5 +1,8 @@
 package com.example.controller;
 
+import com.example.async.EventModel;
+import com.example.async.EventProducer;
+import com.example.async.EventType;
 import com.example.model.Comment;
 import com.example.model.EntityType;
 import com.example.model.HostHolder;
@@ -29,6 +32,9 @@ public class CommentController {
     @Autowired
     QuestionService questionService;
 
+    @Autowired
+    EventProducer eventProducer;
+
     @RequestMapping(path = {"/addComment"}, method = { RequestMethod.POST })
     public String addComment(@RequestParam("questionId") int questionId,
                              @RequestParam("content") String content){
@@ -44,6 +50,13 @@ public class CommentController {
             comment.setEntityType(EntityType.ENTITY_QUESTION);
             comment.setEntityId(questionId);
             commentService.addComment(comment);
+
+            Question q = questionService.selectById(questionId);
+
+            eventProducer.fireEvent(new EventModel().setType(EventType.COMMENT)
+                    .setActorId(hostHolder.get().getId())
+                    .setEntityType(EntityType.ENTITY_QUESTION).setEntityId(questionId)
+                    .setEntityOwnerId(q.getUserId()));
 
             int count = commentService.getCommentCount(questionId, EntityType.ENTITY_QUESTION);
             questionService.updateCommentCount(questionId, count);
